@@ -5,7 +5,7 @@ import copy
 
 # creation of the initial image
 operator_dim = 2
-image_dim = operator_dim * 20
+image_dim = operator_dim * 50
 min_color = 50
 max_color = 250
 random_colored_image = np.array(min_color + (max_color - min_color) * np.random.random((image_dim, image_dim, 3)),
@@ -33,14 +33,12 @@ if print_colors:
     plt.imshow(B, 'Blues')
     plt.show()
 
-plt.figure(figsize=(10, 10))
-plt.imshow(random_colored_image)
-plt.show()
-
+fig = plt.figure(figsize=(10, 10))
 
 # function to optimize
 
 # the variation of color between neighbours
+
 
 # division of the image in the 3 colors
 def fitness(image):
@@ -154,7 +152,7 @@ def exchange(image, coordinates):
 
 # hill climbing for k_exchange
 def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimension, k):
-    video = []
+    video = [[plt.imshow(image, animated=True)]]
     i = 0
     stop = False
     best = fitness(image)
@@ -174,7 +172,8 @@ def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimens
             if candidate < best:
                 best = candidate
                 best_image = np.copy(image)
-                video.append([plt.imshow(best_image, animated=True)])
+                frame = plt.imshow(best_image, animated=True)
+                video.append([frame])
                 stop = False
                 break
     if best < good_value:
@@ -185,11 +184,7 @@ def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimens
         print('local minimum')
     print('')
     print(best)
-
-    plt.figure(figsize=(5, 5))
-    plt.imshow(best_image)
-    plt.show()
-    return best_image, video
+    return best_image, video, best
 
 
 # hill climbing for manhattan distance
@@ -214,27 +209,21 @@ def hill_climbing_manhattan(max_iterations, good_value, distance, image):
                 stop = False
                 break
 
-    out.release()
     if best < good_value:
         print('better than good value')
     elif i > max_iterations:
         print('max iteration')
     else:
         print('local minimum')
-    print('')
-    print(best)
 
-    plt.figure(figsize=(5, 5))
-    plt.imshow(best_image)
-    plt.show()
     return best_image
 
 
-best_image, video = hill_climbing_k_exchange(random_colored_image,
-                                             max_iterations=5000,
-                                             good_value=100,
-                                             neighbour_dimension=500,
-                                             k=2)
-fig = plt.figure(figsize=(5, 5))
-anim = an.ArtistAnimation(fig, video)
-anim.save('video.html', fps=5)
+best_image, video, best = hill_climbing_k_exchange(random_colored_image,
+                                                   max_iterations=50000,
+                                                   good_value=100,
+                                                   neighbour_dimension=5000,
+                                                   k=2)
+
+anim = an.ArtistAnimation(fig, video, blit=True)
+anim.save('video.html')
