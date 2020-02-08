@@ -1,11 +1,11 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib import animation as an
+from PIL import Image
 import copy
 
 # creation of the initial image
 operator_dim = 2
-image_dim = operator_dim * 50
+image_dim = operator_dim * 200
 min_color = 50
 max_color = 250
 random_colored_image = np.array(min_color + (max_color - min_color) * np.random.random((image_dim, image_dim, 3)),
@@ -33,7 +33,6 @@ if print_colors:
     plt.imshow(B, 'Blues')
     plt.show()
 
-fig = plt.figure(figsize=(10, 10))
 
 # function to optimize
 
@@ -119,11 +118,11 @@ def k_exchange(k, image_dim):
 
 
 # manhattan distance movement
-def manhattan_distance_movement(matrix_dim, lenght_movement=1):
+def manhattan_distance_movement(matrix_dim, length_movement=1):
     movements = set()
-    for i in range(matrix_dim - lenght_movement):
-        for j in range(matrix_dim - lenght_movement):
-            for k in range(1, lenght_movement + 1):
+    for i in range(matrix_dim - length_movement):
+        for j in range(matrix_dim - length_movement):
+            for k in range(1, length_movement + 1):
                 movements.add((i, j, i, j + k))
                 movements.add((i, j, i + k, j))
     return movements
@@ -152,8 +151,10 @@ def exchange(image, coordinates):
 
 # hill climbing for k_exchange
 def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimension, k):
-    video = [[plt.imshow(image, animated=True)]]
+
+    video = [Image.fromarray(image)]
     i = 0
+    h = 0
     stop = False
     best = fitness(image)
     best_image = image
@@ -170,15 +171,16 @@ def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimens
             if not i % (max_iterations / 10):
                 print(10 - i / max_iterations * 10, sep=' ')
             if candidate < best:
+                h += 1
                 best = candidate
                 best_image = np.copy(image)
-                frame = plt.imshow(best_image, animated=True)
-                video.append([frame])
+                if h % int(max_iterations/2000) == 0:
+                    video.append(Image.fromarray(best_image))
                 stop = False
                 break
     if best < good_value:
         print('better than good value')
-    elif i > max_iterations:
+    elif i >= max_iterations:
         print('max iteration')
     else:
         print('local minimum')
@@ -194,7 +196,7 @@ def hill_climbing_manhattan(max_iterations, good_value, distance, image):
     best = fitness(image)
     best_image = image
     moves = manhattan_distance_movement(image.shape[0], distance)
-    while (best >= good_value and i < max_iterations and not stop):
+    while best >= good_value and i < max_iterations and not stop:
         for move in moves:
             stop = True
             image = np.copy(best_image)
@@ -211,7 +213,7 @@ def hill_climbing_manhattan(max_iterations, good_value, distance, image):
 
     if best < good_value:
         print('better than good value')
-    elif i > max_iterations:
+    elif i >= max_iterations:
         print('max iteration')
     else:
         print('local minimum')
@@ -219,11 +221,27 @@ def hill_climbing_manhattan(max_iterations, good_value, distance, image):
     return best_image
 
 
-best_image, video, best = hill_climbing_k_exchange(random_colored_image,
-                                                   max_iterations=50000,
-                                                   good_value=100,
-                                                   neighbour_dimension=5000,
-                                                   k=2)
+def reduce_array(array, length):
+    if len(array) <= length:
+        return array
+    division = int(len(array)/length)
+    i = 0
+    for a in array:
+        if i % division:
+            array.remove(a)
+        i += 1
+    return array
 
-anim = an.ArtistAnimation(fig, video, blit=True)
-anim.save('video.html')
+
+best_image, video, best = hill_climbing_k_exchange(random_colored_image,
+                                                   max_iterations=5000000,
+                                                   good_value=100,
+                                                   neighbour_dimension=500000,
+                                                   k=2)
+video = reduce_array(video, 600)
+print(len(video))
+video[0].save('video.gif', save_all=True, append_images=video[1:], optimize=False, duration=50)
+
+plt.figure(figsize=(20, 20))
+plt.imshow(best_image)
+plt.show()
