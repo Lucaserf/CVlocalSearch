@@ -5,7 +5,7 @@ import copy
 
 # creation of the initial image
 operator_dim = 2
-image_dim = operator_dim * 200
+image_dim = operator_dim * 100
 min_color = 50
 max_color = 250
 random_colored_image = np.array(min_color + (max_color - min_color) * np.random.random((image_dim, image_dim, 3)),
@@ -151,6 +151,7 @@ def exchange(image, coordinates):
 
 # hill climbing for k_exchange
 def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimension, k):
+    #TODO: annealing
     video = [Image.fromarray(image)]
     i = 0
     h = 0
@@ -190,6 +191,7 @@ def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimens
 
 # hill climbing for manhattan distance
 def hill_climbing_manhattan(max_iterations, good_value, distance, image):
+    #TODO: video
     i = 0
     stop = False
     best = fitness(image)
