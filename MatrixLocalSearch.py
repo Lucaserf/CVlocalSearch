@@ -15,12 +15,12 @@ R = random_colored_image[:, :, 0]
 G = random_colored_image[:, :, 1]
 B = random_colored_image[:, :, 2]
 
-R[R <= G] = 0
-G[G <= R] = 0
-B[B <= G] = 0
-R[R <= B] = 0
-G[G <= B] = 0
-B[B <= R] = 0
+# R[R <= G] = 0
+# G[G <= R] = 0
+# B[B <= G] = 0
+# R[R <= B] = 0
+# G[G <= B] = 0
+# B[B <= R] = 0
 
 print_colors = False
 if print_colors:
@@ -151,7 +151,6 @@ def exchange(image, coordinates):
 
 # hill climbing for k_exchange
 def hill_climbing_k_exchange(image, max_iterations, good_value, neighbour_dimension, k):
-
     video = [Image.fromarray(image)]
     i = 0
     h = 0
@@ -240,7 +239,7 @@ best_image, video, best = hill_climbing_k_exchange(random_colored_image,
                                                    k=2)
 video = reduce_array(video, 600)
 print(len(video))
-video[0].save('video.gif', save_all=True, append_images=video[1:], optimize=False, duration=50)
+video[0].save('videoFullColor.gif', save_all=True, append_images=video[1:], optimize=False, duration=50)
 
 plt.figure(figsize=(20, 20))
 plt.imshow(best_image)
